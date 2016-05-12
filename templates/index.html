@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+	<div class="col-md-12">
+		<h1>Ansible Setting</h1>
+		<form method="post" action="{{ url_for('index') }}">
+			{% for section in config.sections() %}
+				<h2> {{ section }}</h2>
+				<hr />
+				<table class="table">
+					<thead>
+						<tr>
+							<th class="col-md-4">Key</th>
+							<th class="col-md-8">Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for key in config[section] %}
+							<tr>
+								<th scope="row" class="col-md-4">{{ key }}</th>
+								<td class="col-md-8"><input class="col-md-12" type="text" value="{{ config[section][key] }}" id="" name="{{ section }}@{{ key }}"></input></td>
+							</tr>
+						{% endfor %}
+					<tbody>
+				</table>
+			{% endfor %}
+			<button type="submit" class="btn btn-primary">Apply</button>
+		</form>
+	</div>
+{% endblock %}

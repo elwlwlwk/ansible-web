@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h1>Change Password</h1>
+	<hr />
+	<div class="col-md-6">
+		<form action="{{ url_for('change_passwd') }}" method="post">
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input type="password" class="form-control" name="passwd" placeholder="Password">
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+{% endblock %}

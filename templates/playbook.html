@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+	<div class="col-md-12">
+		<h1>Enter variables</h1>
+		<hr />
+		<pre>{{ playscript }}</pre>
+		<form action="{{ url_for('play') }}" method="post">
+			<input type="hidden" value="{{ playbook }}" name="playbook">
+			<div class="form-group">
+				<label for="variables">Variables</label>
+				<input type="text" class="form-control" name="variables" placeholder="Variables">
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+{% endblock %}

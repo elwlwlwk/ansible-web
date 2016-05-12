@@ -1,0 +1,8 @@
+*.swp
+__pycache__
+*.pyc
+*.retry
+user
+passwd
+playbooks/*.yml
+logs/*

@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block body %}
+	<div class="col-md-12">
+		<h1>Hosts</h1>
+		{% for group in hosts %}
+			<h3>{{ group }}</h3>
+			<hr />
+			{% for host in hosts[group] %}
+			<h5>{{ host }}</h5>
+			{% endfor %}
+		{% endfor %}
+	</div>
+{% endblock %}

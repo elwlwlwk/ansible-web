@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" />
+		<script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
+		<title>Gooroom Manager</title>
+	</head>
+	
+	<body>
+		<div class="bs-example" data-example-id="inverted-navbar">
+			<nav class="navbar navbar-inverse">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-9" aria-expanded="false">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="/">Ansible Manager</a>
+					</div>
+					<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-9">
+						<ul class="nav navbar-nav">
+							<li><a href="/">Home</a></li>
+							<li><a href="/hosts">Hosts</a></li>
+							<li><a href="/playbooks">Play</a></li>
+							<li><a href="/logs">Logs</a></li>
+						</ul>
+						<ul class="nav navbar-nav navbar-right">
+							{% if session.logged_in %}
+								<li class="dropdown">
+									<a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="cart">{{ session.username }}</b></a>
+									<ul class="dropdown-menu">
+										<li><a href="{{ url_for('change_passwd') }}">Change Password</a></li>
+										<li><a href="{{ url_for('logout') }}">Logout</a></li>
+									</ul>
+								</li>
+							{% else %}
+								<li>
+									<form class="form-inline" action="{{ url_for('login') }}" method="post">
+										<div class="form-group">
+											<label class="sr-only" for="username">Email address</label>
+											<input type="text" class="form-control" id="username" name="username" placeholder="Username">
+										</div>
+										<div class="form-group">
+											<label class="sr-only" for="password">Password</label>
+											<input type="password" class="form-control" id="passwd" name="passwd" placeholder="Passwd">
+										</div>
+										<button type="submit" class="btn btn-primary">Login</button>
+									</form>
+								</li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+			</nav>
+		</div>
+	{% if not session.logged_in %}
+		<h1>Login Plz</h1>
+	{% else %}
+		{% block body %}{% endblock %}
+	{% endif %}
+	</body>
+</html>

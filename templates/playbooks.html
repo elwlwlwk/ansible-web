@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+	<div class="col-md-12">
+		<h1>Select playbook to play</h1>
+		<hr />
+		<ul class="list-unstyled">
+			{% for playbook in playbooks %}
+				<li><a href="{{ url_for('playbook', playbook=playbook) }}">{{ playbook }}</a></li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
