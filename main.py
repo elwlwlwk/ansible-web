@@ -52,7 +52,7 @@ def change_passwd():
 
 	return render_template('change_passwd.html')
 
-@app.route("/hosts")
+@app.route("/hosts", methods=['GET'])
 def hosts():
 	if 'logged_in' not in session or session['logged_in']!= True:
 		return redirect(url_for('index'))
@@ -60,6 +60,58 @@ def hosts():
 	from hosts import get_hosts
 	hosts=get_hosts()
 	return render_template('hosts.html', hosts=hosts)
+
+@app.route("/remove_host", methods=['GET', 'POST'])
+def remove_host():
+	if request.method=='POST':
+		import hosts
+		if 'logged_in' not in session or session['logged_in']!= True:
+			host= request.environ['REMOTE_ADDR']
+		else:
+			host= request.form['host']
+
+		group= request.form['group']
+		hosts.remove_host(group, host)
+
+	return redirect(url_for('hosts'))
+
+@app.route("/add_host", methods=['GET', 'POST'])
+def add_host():
+	if request.method=='POST':
+		import hosts
+		if 'logged_in' not in session or session['logged_in']!= True:
+			host= request.environ['REMOTE_ADDR']
+		else:
+			host= request.form['host']
+
+		group= request.form['group']
+		hosts.add_host(group, host)
+
+	return redirect(url_for('hosts'))
+
+@app.route("/add_group", methods=['GET', 'POST'])
+def add_group():
+	if 'logged_in' not in session or session['logged_in']!= True:
+		return redirect(url_for('index'))
+
+	if request.method=='POST':
+		import hosts
+		group= request.form['group']
+		hosts.add_group(group)
+
+	return redirect(url_for('hosts'))
+
+@app.route("/remove_group", methods=['GET', 'POST'])
+def remove_group():
+	if 'logged_in' not in session or session['logged_in']!= True:
+		return redirect(url_for('index'))
+
+	if request.method=='POST':
+		import hosts
+		group= request.form['group']
+		hosts.remove_group(group)
+
+	return redirect(url_for('hosts'))
 
 @app.route("/playbooks")
 def playbooks():
@@ -79,10 +131,13 @@ def playbook():
 		return redirect(url_for('index'))
 
 	playbook= request.args['playbook']
-
 	with open('playbooks/%s' % playbook, 'r') as f:
 		playscript= f.read()
-	return render_template('playbook.html', playbook= playbook, playscript= playscript)
+
+	from hosts import get_hosts
+	hosts=get_hosts()
+
+	return render_template('playbook.html', playbook= playbook, playscript= playscript, hosts=hosts)
 
 @app.route("/play", methods=['GET', 'POST'])
 def play():
@@ -119,6 +174,13 @@ def log():
 	with open('logs/%s' % logname, 'r') as f:
 		log= f.read()
 	return render_template('log.html', logname=logname, log=log)
+
+@app.route("/get_pubkey")
+def get_pubkey():
+	import os
+	with open('%s/.ssh/id_rsa.pub' % os.getenv("HOME"), 'r') as f:
+		pub_key= f.read()
+	return pub_key;
 
 if __name__== "__main__":
 	app.debug= True

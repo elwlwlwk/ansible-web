@@ -1,13 +1,52 @@
 {% extends "layout.html" %}
 {% block body %}
 	<div class="col-md-12">
-		<h1>Hosts</h1>
-		{% for group in hosts %}
-			<h3>{{ group }}</h3>
-			<hr />
-			{% for host in hosts[group] %}
-			<h5>{{ host }}</h5>
-			{% endfor %}
+		<div>
+			<h1>Hosts</h1>
+			<form class="form-inline" method="post" action="{{ url_for('add_group') }}">
+				<div class="form-group">
+					<input type="text" class="form-control" name="group" placeholder="New Group">
+				</div>
+				<button type="submit" class="btn btn-primary">Add Group</button>
+			</form>
+		</div>
+		<hr />
+		<div>
+			{% for group in hosts %}
+				<div>
+					<form class="form-inline" method="post" action="{{ url_for('remove_group') }}">
+						<div class="form-group">
+							<h3>
+								{{ group }}
+								<button type="submit" class="btn btn-danger">Remove Group</button>
+								<input type="hidden" name="group" value="{{ group }}">
+							</h3>
+						</div>
+					</form>
+				</form>
+				<ul>
+					{% for host in hosts[group] %}
+						<li>
+							<form class="form-inline" method="post" action="{{ url_for('remove_host') }}">
+								<h5>
+									{{ host }}
+									<input type="hidden" name="group" value="{{ group }}">
+									<input type="hidden" name="host" value="{{ host }}">
+									<button type="submit" class="btn btn-danger btn-xs">Remove Host</button>
+								</h5>
+							</form>
+						</li>
+					{% endfor %}
+				</ul>
+				<form class="form-inline" method="post" action="{{ url_for('add_host') }}">
+					<div class="form-group">
+						<input type="hidden" name="group" value="{{ group }}">
+						<input type="text" class="form-control" name="host" placeholder="New Host">
+					</div>
+					<button type="submit" class="btn btn-primary">Add Host</button>
+				</form>
+			</div>
 		{% endfor %}
+		</div>
 	</div>
 {% endblock %}
