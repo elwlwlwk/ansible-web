@@ -2,12 +2,14 @@
 {% block body %}
 	<div class="col-md-12">
 		<h1>Logs</h1>
-		{% for playbook in logs %}
-			<h3>{{ playbook }}</h3>
-			<hr />
-			{% for log in logs[playbook] %}
-			<a href="{{ url_for('log', log='%s/%s' % (playbook, log)) }}"><h5>{{ log }}</h5></a>
-			{% endfor %}
+		<hr />
+		<ul>
+		{% for log in logs %}
+			<li>
+				<a href="{{ url_for('log', log='%s/%s' % (log[:-15], log)) }}">{{ log }}</a>
+				<a href="{{ url_for('log_del', log='%s/%s' % (log[:-15], log)) }}"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+			</li>
 		{% endfor %}
+		</ul>
 	</div>
 {% endblock %}

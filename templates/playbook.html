@@ -7,8 +7,10 @@
 		<form action="{{ url_for('play') }}" method="post">
 			<input type="hidden" value="{{ playbook }}" name="playbook">
 			<div class="form-group">
-				<label for="variables">Variables</label>
-				<input type="text" class="form-control" name="variables" placeholder="Variables">
+				{% for variable in extra_vars %}
+				<label for="variables">{{variable}}</label>
+				<input type="text" class="form-control" name="{{ variable }}" placeholder="{{ variable }}">
+				{% endfor %}
 			</div>
 			<button type="submit" class="btn btn-primary">Submit</button>
 		</form>

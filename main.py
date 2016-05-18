@@ -6,6 +6,15 @@ app= Flask(__name__)
 @app.route("/", methods=['GET', 'POST'])
 def index():
 	import configparser
+	import os
+	if 'passwd' not in os.listdir():
+		if request.method== 'POST':
+			user_name= request.form['user_name']
+			passwd= request.form['passwd']
+			user.new_user(user_name, passwd)
+		else:
+			return render_template('add_user.html', new_user=True)
+		return redirect(url_for('index'))
 	if 'logged_in' in session and session['logged_in']== True:
 		if request.method== 'POST':
 			config= configparser.ConfigParser()
@@ -33,6 +42,8 @@ def login():
 		if user.login_validator(username, passwd):
 			session['username']= username
 			session['logged_in']= True
+		else:
+			return render_template('index.html', login_fail=True)
 	return redirect(url_for('index'))
 
 @app.route("/logout", methods=['GET'])
@@ -45,7 +56,7 @@ def logout():
 def change_passwd():
 	if 'logged_in' not in session or session['logged_in']!= True:
 		return redirect(url_for('index'))
-		
+
 	if request.method== 'POST':
 		user.change_passwd(session['username'], request.form['passwd'])
 		logout()
@@ -123,6 +134,7 @@ def playbooks():
 	for f in os.listdir('playbooks'):
 		if 'yml' in f:
 			playbooks.append(f)
+	playbooks.sort()
 	return render_template('playbooks.html', playbooks= playbooks)
 
 @app.route("/playbook")
@@ -137,7 +149,13 @@ def playbook():
 	from hosts import get_hosts
 	hosts=get_hosts()
 
-	return render_template('playbook.html', playbook= playbook, playscript= playscript, hosts=hosts)
+	from jinja2 import Environment, PackageLoader, meta
+	env= Environment(loader= PackageLoader('playbooks',''))
+	template_source= env.loader.get_source(env, playbook)[0]
+	parsed_content= env.parse(template_source)
+	extra_vars= meta.find_undeclared_variables(parsed_content)
+
+	return render_template('playbook.html', playbook= playbook, playscript= playscript, hosts=hosts, extra_vars= extra_vars)
 
 @app.route("/play", methods=['GET', 'POST'])
 def play():
@@ -147,11 +165,15 @@ def play():
 	if request.method== 'POST':
 		import os, datetime
 		playbook= request.form['playbook']
-		variables= request.form['variables']
+		variables= ''
+		for variable in request.form:
+			if variable== 'playbook':
+				continue
+			variables+='%s=%s ' % (variable, request.form[variable])
 		if playbook not in os.listdir('logs'):
 			os.system('mkdir logs/%s' % playbook)
-		os.system('nohup ansible-playbook playbooks/%s --extra-vars %s > logs/%s/%s_%s &' % (playbook, variables, playbook, playbook, str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))))
-	
+		os.system('nohup ansible-playbook playbooks/%s --extra-vars "%s" > logs/%s/%s_%s &' % (playbook, variables, playbook, playbook, str(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))))
+
 	return redirect(url_for('playbooks'))
 
 @app.route("/logs")
@@ -161,9 +183,11 @@ def logs():
 
 	import os
 
-	logs={}
+	logs=[]
 	for playbook in os.listdir('logs'):
-		logs[playbook]= os.listdir('logs/%s' % playbook)
+		log= os.listdir('logs/%s' % playbook)
+		logs+=log
+	logs.sort(key=(lambda x:x[-14:]), reverse=True)
 	return render_template('logs.html', logs=logs)
 
 @app.route("/log")
@@ -173,7 +197,17 @@ def log():
 	logname= request.args['log']
 	with open('logs/%s' % logname, 'r') as f:
 		log= f.read()
-	return render_template('log.html', logname=logname, log=log)
+	return render_template('log.html', logname=logname.split("/")[1], log=log)
+
+@app.route("/log_del")
+def log_del():
+	if 'logged_in' not in session or session['logged_in']!= True:
+		return redirect(url_for('index'))
+
+	import os
+	os.remove('logs/%s' % request.args['log'])
+
+	return redirect(url_for('logs'))
 
 @app.route("/get_pubkey")
 def get_pubkey():
@@ -183,6 +217,7 @@ def get_pubkey():
 	return pub_key;
 
 if __name__== "__main__":
-	app.debug= True
-	app.secret_key= 'gooroom'
-	app.run()
+	import config
+	app.debug= config.SERVER_DEBUG
+	app.secret_key= 'ansible-web-secret-key'
+	app.run(host=config.SERVER_HOST, port=config.SERVER_PORT)
