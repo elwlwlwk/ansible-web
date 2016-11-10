@@ -4,7 +4,7 @@
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" />
 		<script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}"></script>
 		<script type="text/javascript" src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
-		<title>Gooroom Manager</title>
+		<title>Ansible Manager</title>
 	</head>
 	
 	<body>
@@ -56,7 +56,7 @@
 				</div>
 			</nav>
 		</div>
-	{% if not session.logged_in %}
+	{% if (not session.logged_in) and (not new_user) %}
 		<h1>Login Plz</h1>
 	{% else %}
 		{% block body %}{% endblock %}

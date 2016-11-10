@@ -184,6 +184,8 @@ def logs():
 	import os
 
 	logs=[]
+	if 'logs' not in os.listdir():
+		os.system('mkdir logs')
 	for playbook in os.listdir('logs'):
 		log= os.listdir('logs/%s' % playbook)
 		logs+=log

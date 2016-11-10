@@ -1,6 +1,12 @@
 import hashlib
 valid_hashed_passwd=""
 
+def new_user(user_name, passwd):
+	with open('passwd', 'w') as f:
+		f.write(hashlib.sha224(hashlib.sha224(passwd.encode()).hexdigest().encode()).hexdigest())
+	with open('user', 'w') as f:
+		f.write(user_name)
+
 def login_validator(username, passwd):
 	with open('passwd', 'r') as f:	
 		valid_hashed_passwd= f.read().strip()
